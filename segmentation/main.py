@@ -54,6 +54,9 @@ test_n = len(test)
 batch_size = 32
 lr = 0.001
 iter = 200000
+start = 1
+loss_epoch = 100
+test_epoch = 1000
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = FCN_8().to(device)
@@ -61,10 +64,15 @@ model_load = 190000
 model.load_state_dict(torch.load(f'/home/aivs/anaconda3/envs/kse/Segmentation/model/{model_load}.pt'))
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=lr)
+# optimizer = optim.SGD(model.parameters(), lr=base_lr, momentum=0.9, weight_decay=1e-4)
 
-start_time = 0
+
+start_time = time.time()
+
+print('train start')
+
 # train
-for i in range(190001, iter + 1):
+for i in range(start, iter + 1):
     # learning rate scheduling
     if (i % 50000 == 0) and (i != 0):
         optimizer.param_groups[0]['lr'] /= 2
@@ -73,10 +81,14 @@ for i in range(190001, iter + 1):
     optimizer.zero_grad()
 
     batch_img, batch_gts = mini_batch(train_n, batch_size, train, train_gts)
-    batch_img, batch_gts = torch.from_numpy(batch_img), torch.from_numpy(batch_gts)
+    batch_img, batch_gts = torch.from_numpy(batch_img), torch.from_numpy(batch_gts)     # batch_img: (32, 3, 256, 256), batch_gt: (32, 1, 256, 256)
     batch_img, batch_gts = batch_img.to(device), batch_gts.to(device)
-    # batch_img: (32, 3, 256, 256), batch_gt: (32, 1, 256, 256)
+
     output = model(batch_img)    # output.shape = (32, 21, 256, 256)
+
+    # out, aux_out = model(batch_img, True)
+    # loss = criterion(out, batch_gts) + a * criterion(aux_out, batch_gts)
+
 
     loss = criterion(output, batch_gts)
     loss.backward()
@@ -86,7 +98,7 @@ for i in range(190001, iter + 1):
     f2 = open('FCN8 pixel accuracy and mIoU.txt', 'a+')
 
     # test loss
-    if i % 100 == 0:
+    if i % loss_epoch == 0:
         model.eval()
         with torch.no_grad():
             batch_img, batch_gts = mini_batch(test_n, batch_size, test, test_gts)
@@ -98,13 +110,13 @@ for i in range(190001, iter + 1):
         # print(f'{i}: {loss.item():.4f}')
 
     # test and save model
-    if (i % 10000 == 0) and (i != 190000):
+    if (i % test_epoch == 0) and (i != start):
         if i != 0:
             torch.save(model.state_dict(), f'model/{i}.pt')
         model.eval()
 
-        #initialize
-        total_pixel_accuracy, total_mIoU = 0, 0
+        # initialize
+        total_pixel_accuracy, total_mIoU = 0., 0.
         total_c_m = np.zeros(shape=(21, 21), dtype=np.uint32)
 
         with torch.no_grad():
