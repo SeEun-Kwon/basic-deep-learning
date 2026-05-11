@@ -3,9 +3,8 @@ import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from FCN_network import *
-from FCN_function import *
-# from FCN_function_bs import load_semantic_seg_data
+from network import *
+from function import index2rgb, color2index
 from torchvision import models
 import time
 from tqdm import tqdm
@@ -15,6 +14,7 @@ import cv2
 # data load
 print('Datasets loading...')
 path = '/home/aivs/바탕화면/hdd/BS/VOC_dataset'
+try_name = ('FCN')
 
 while 1:
     choice = input('from (1) scratch or (2) npy: ')
@@ -94,8 +94,8 @@ for i in range(start, iter + 1):
     loss.backward()
     optimizer.step()
 
-    f1 = open('FCN8_loss.txt', 'a+')
-    f2 = open('FCN8 pixel accuracy and mIoU.txt', 'a+')
+    f1 = open(f'loss.txt', 'a+')
+    f2 = open(f'{try_name}.txt', 'a+')
 
     # test loss
     if i % loss_epoch == 0:
@@ -112,11 +112,11 @@ for i in range(start, iter + 1):
     # test and save model
     if (i % test_epoch == 0) and (i != start):
         if i != 0:
-            torch.save(model.state_dict(), f'model/{i}.pt')
+            torch.save(model.state_dict(), f'model/{try_name}_{i}.pt')
         model.eval()
 
         # initialize
-        total_pixel_accuracy, total_mIoU = 0., 0.
+        total_PA, total_mIoU = 0., 0.
         total_c_m = np.zeros(shape=(21, 21), dtype=np.uint32)
 
         with torch.no_grad():
@@ -126,59 +126,65 @@ for i in range(start, iter + 1):
                 test_img = torch.from_numpy(test_img.astype(np.float32)).to(device)
 
                 test_output = model(test_img)
-                test_output = np.squeeze(test_output.cpu().numpy())
-                test_output = np.transpose(test_output, (1, 2, 0))   # (256, 256, 21)
-
-                # class만 저장
-                test_gt = np.argmax(test_gts[j, :, :, :], axis=-1)      # (256, 256)
-                pred = np.argmax(test_output, axis=-1)                  # (256, 256)
+                test_output = test_output.cpu().numpy().squeeze()
+                test_output = np.argmax(np.transpose(test_output, (1, 2, 0)), axis=2)   # (256, 256)
+                
+                test_gt = color2index(cv2.cvtColor(test_gts[j, :, :, :] , cv2.COLOR_BGR2RGB))      # (256, 256)
 
                 # accuracy
-                pixel_accuracy, count = 0, 0
-                confusion_mtx = np.zeros(shape=(21, 21), dtype=np.uint32)       # (pred, gt)
-                comparison = np.zeros(shape=(2, 256 * 256), dtype=np.uint8)
+                single_PA, single_mIoU, count = 0., 0., 0
+                single_c_m = np.zeros(shape=(21, 21), dtype=np.uint32)       # (pred, gt)
+                IoU = np.zeros(shape=21, dtype=np.float16)
+
+                comparison = np.zeros(shape=(2, 256 * 256), dtype=np.uint8)  
                 comparison[0], comparison[1] = pred.reshape(-1), test_gt.reshape(-1)
                 comparison = np.transpose(comparison, (1, 0))
-                score = np.zeros(shape=test_n, dtype=np.float32)
+                
                 for p in range(21):
                     for q in range(21):
                         count = np.sum(np.all(comparison == (p, q), axis=-1))
-                        confusion_mtx[p, q] = count
+                        single_c_m[p, q] = count
                         total_c_m[p, q] += count
                         if p == q:
-                            pixel_accuracy += count
-                total_pixel_accuracy += pixel_accuracy
-                pixel_accuracy = pixel_accuracy / (256 * 256) * 100
+                            single_PA += count
 
-                count, single_mIoU = 0, 0
-                score = np.zeros(shape=21, dtype=np.float32)
+                count = 0
                 for k in range(21):
-                    if sum(confusion_mtx[:, k]) != 0:
+                    if sum(single_c_m[:, k]) != 0:
                         count += 1
-                        union = sum(confusion_mtx[k, :]) + sum(confusion_mtx[:, k]) - confusion_mtx[k, k]
-                        single_mIoU += (confusion_mtx[k, k] / union)
-                        score[k] = confusion_mtx[k, k] / union
+                        single_IoU = single_c_m[k, k] / sum(single_c_m[k, :]) + sum(single_c_m[:, k]) - single_c_m[k, k]
+                        single_mIoU += single_IoU
+
+                single_PA /= 256 * 256
                 single_mIoU /= count
 
                 # saving predicted image
-                result_img = index_to_rgb(pred)    # index를 rgb로 변환하여 result image 생성, (256, 256, 3)
-                os.makedirs(f'/home/aivs/바탕화면/hdd/KSE/FCN_output/{i}', exist_ok=True)
-                cv2.imwrite(f'/home/aivs/바탕화면/hdd/KSE/FCN_output/{i}/{test_names[j][:-4]}({pixel_accuracy:.4},{single_mIoU:.4}).jpg', result_img)
+                os.makedirs(f'/home/aivs/바탕화면/hdd/KSE/output/{try_name}', exist_ok=True)
+                cv2.imwrite(f'/home/aivs/바탕화면/hdd/KSE/output/{try_name}/{test_names[j][:-4]}({single_PA:.4f},{single_mIoU:.4f}).jpg', index2rgb(pred))
 
         count = 0
         for j in range(class_num):
-            total_img_union = sum(total_c_m[j, :]) + sum(total_c_m[:, j]) - total_c_m[j, j]
+            total_union = sum(total_c_m[j, :]) + sum(total_c_m[:, j]) - total_c_m[j, j]
+            IoU = total_c_m[j, j] / total_union
             if total_img_union != 0:
-                total_mIoU += (total_c_m[j, j] / total_img_union)
+                total_mIoU += IoU
                 count += 1
-        total_pixel_accuracy /= (256 * 256 * test_n)
+                
+        total_PA = np.sum(total_c_m.diagonal()) / (256 * 256 * test_n)
         total_mIoU /= count
-        f2.write(f'{i}\t{total_pixel_accuracy:.4}\t{total_mIoU:.4}\n')
+        
+        f2.write(f'{i}\t{total_PA:.4}\t{total_mIoU:.4}\n')
 
         test_time = time.time()
         elapsed_time = (test_time - start_time) / 60
         learning_rate = optimizer.param_groups[0]['lr']
-        print(f'step: {i}\t||  pixel accuracy: {total_pixel_accuracy:.4f},\tmIoU: {total_mIoU:.4},\tlr: {learning_rate:.10},\ttime: {elapsed_time:.1}')
+        
+        print(f'step: {i}\t||  '
+        f'PA: {total_PA:.4f},\t'
+        f'mIoU: {total_mIoU:.4},\t'
+        f'lr: {learning_rate:.10},\t'
+        f'time: {elapsed_time:.1}')
+        
     f1.close()
     f2.close()
 
