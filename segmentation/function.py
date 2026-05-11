@@ -34,7 +34,7 @@ def data_load(path):
         train = cv2.resize(train, dsize=(256, 256), interpolation=cv2.INTER_LINEAR)
         train_gt = cv2.resize(train_gt, dsize=(256, 256), interpolation=cv2.INTER_NEAREST)
         trains[i, :, :, :] = train
-        train_gts[i, :, :, :] = rgb_to_index(train_gt)
+        train_gts[i, :, :, :] = rgb2index(train_gt)
     print(f'train data load finished')
 
     for i in range(len(test_img_names)):
@@ -43,7 +43,7 @@ def data_load(path):
         test = cv2.resize(test, dsize=(256, 256), interpolation=cv2.INTER_LINEAR)
         test_gt = cv2.resize(test_gt, dsize=(256, 256), interpolation=cv2.INTER_NEAREST)
         tests[i, :, :, :] = test
-        test_gts[i, :, :, :] = rgb_to_index(test_gt)
+        test_gts[i, :, :, :] = rgb2index(test_gt)
     print(f'test data load finished')
 
     return trains, tests, train_gts, test_gts
@@ -54,20 +54,20 @@ def One_Hot_Encoding(array):    # (b, h, w, c)
         new_array[i, :, :, array[i, :, :]] = 1
     return new_array
 
-def mini_batch_bs(data_size, batch_size, img, gt):
-    idx = np.random.randint(low=0, high=data_size, size=batch_size)
-    batch_img = np.zeros(shape=(batch_size, 256, 256, 3), dtype=np.float32)
-    batch_gt = np.zeros(shape=(batch_size, 256, 256, 1), dtype=np.float32)
+# def mini_batch_bs(data_size, batch_size, img, gt):
+#     idx = np.random.randint(low=0, high=data_size, size=batch_size)
+#     batch_img = np.zeros(shape=(batch_size, 256, 256, 3), dtype=np.float32)
+#     batch_gt = np.zeros(shape=(batch_size, 256, 256, 1), dtype=np.float32)
 
-    for i in range(batch_size):
-        temp = idx[i]
-        batch_img[i, :, :, :] = (img[temp, :, :, :] / 255.0) * 2.0 - 1.0
-        batch_gt[i, :, :, ] = gt[temp, :, :, 0:1]
+#     for i in range(batch_size):
+#         temp = idx[i]
+#         batch_img[i, :, :, :] = (img[temp, :, :, :] / 255.0) * 2.0 - 1.0
+#         batch_gt[i, :, :, ] = gt[temp, :, :, 0:1]
 
-    batch_img = np.transpose(batch_img, axes=[0, 3, 1, 2])
-    batch_gt = np.transpose(batch_gt, axes=[0, 3, 1, 2])
+#     batch_img = np.transpose(batch_img, axes=[0, 3, 1, 2])
+#     batch_gt = np.transpose(batch_gt, axes=[0, 3, 1, 2])
 
-    return batch_img, batch_gt
+#     return batch_img, batch_gt
 
 
 def mini_batch(data_size, batch_size, img, gt):
@@ -95,14 +95,14 @@ def mini_batch(data_size, batch_size, img, gt):
 
     return batch_img, batch_gt
 
-def rgb_to_index(img):
+def rgb2index(img):
     image = np.zeros(shape=(256, 256, 21), dtype=np.uint8)
     for idx, bgr in enumerate(VOC_COLORMAP):
         where = np.array(np.where(np.all(img == bgr, axis=-1)))  # np.all: train_gt = rgb인 픽셀에 True 반환
         image[where[0], where[1], idx] = 1                         # np.where: True인 요소의 위치 튜플로 반환 (x축 끼리, y축 끼리)
     return image
 
-def index_to_rgb(img):
+def index2rgb(img):
     output = np.zeros(shape=(256, 256, 3), dtype=np.uint8)
     for i in range(len(VOC_COLORMAP)):
         wh = np.column_stack(np.where(img == i))        # np.column_stack: 여러 vector 입력받아 각 배열을 열(column)로 하는 2차원 배열 생성
