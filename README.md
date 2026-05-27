@@ -2,18 +2,18 @@
 
 딥러닝 Classification, Segmentation 모델을 직접 구현하고 학습한 프로젝트  
 PyTorch 기반으로 주요 CNN 아키텍처들을 구현 및 실험함
-
-
+<br>
+<br>
 ### 📌 Project Overview
 
 - 대표적인 CNN 기반 딥러닝 모델 구조 이해
 - Classification / Segmentation 모델 구현
 - 모델별 구조 및 성능 비교
 - 데이터 로딩, 학습, 추론 파이프라인 구현
-
-
+<br>
+<br>
+<br>
 ---
-
 ## 📂 Implement Details
 
 ### 1. Image Classification
@@ -57,20 +57,20 @@ PyTorch 기반으로 주요 CNN 아키텍처들을 구현 및 실험함
   - Mask Visualization
   - Accuracy 및 Loss 기록
   - 모델 저장 및 불러오기
-
-
+<br>
+<br>
+<br>
 ---
-
 ## 📝 What I Learned
 
 - CNN 아키텍처와 태스크별 특징과 차이점 이해
 - Residual Connection 및 Dense Connection 구조 학습
 - Semantic Segmentation 파이프라인 구현 경험
 - 학습 안정화 및 성능 개선 실험
-
-
+<br>
+<br>
+<br>
 ---
-
 ## 🔗 References
 
 - VGGNet : https://arxiv.org/pdf/1409.1556
