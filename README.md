@@ -14,9 +14,9 @@ PyTorch 기반으로 주요 CNN 아키텍처들을 구현 및 실험함
 
 ---
 
-# 📂 Implemented Models
+## 📂 Implemented Models
 
-## 1. Image Classification
+### 1. Image Classification
 
 ImageNet2012를 기반으로 구성한 Custom Dataset을 사용
 - Number of Classes: 200
@@ -29,7 +29,7 @@ ImageNet2012를 기반으로 구성한 Custom Dataset을 사용
 - ResNet
 - DenseNet
 
-### 주요 구현 내용
+#### 주요 구현 내용
 
 - DataLoader / Training / Validation Loop 구현
 - Accuracy 및 Loss 기록
@@ -37,7 +37,7 @@ ImageNet2012를 기반으로 구성한 Custom Dataset을 사용
 
 ---
 
-## 2. Image Segmentation
+### 2. Image Segmentation
 
 PASCAL VOC 2012 dataset 사용
 - Number of Classes: 21
@@ -49,7 +49,7 @@ PASCAL VOC 2012 dataset 사용
 - U-Net
 - PSPNet
 
-### 주요 구현 내용
+#### 주요 구현 내용
 
 - DataLoader / Training / Validation Loop 구현
 - mIoU / Pixel Accuracy 평가지표 구현
@@ -60,7 +60,7 @@ PASCAL VOC 2012 dataset 사용
 ---
 
 
-# 📝 What I Learned
+### 📝 What I Learned
 
 - CNN 아키텍처와 태스크별 특징과 차이점 이해
 - Residual Connection 및 Dense Connection 구조 학습
@@ -69,7 +69,7 @@ PASCAL VOC 2012 dataset 사용
 
 ---
 
-# 🔗 References
+### 🔗 References
 
 - VGGNet : https://arxiv.org/pdf/1409.1556
 - ResNet : https://arxiv.org/pdf/1512.03385
