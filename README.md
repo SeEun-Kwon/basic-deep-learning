@@ -14,7 +14,7 @@ PyTorch 기반으로 주요 CNN 아키텍처들을 구현 및 실험함
 <br>
 <br>
 
-## 📂 Implement Details
+## 📂 Implementation Details
 
 ### 1. Image Classification
 
