@@ -15,8 +15,6 @@ PyTorch 기반으로 주요 CNN 아키텍처들을 구현 및 실험함
 <br>
 <br>
 
----
-
 ## 📂 Implement Details
 
 ### 1. Image Classification
@@ -64,7 +62,6 @@ PyTorch 기반으로 주요 CNN 아키텍처들을 구현 및 실험함
 <br>
 <br>
 
----
 
 ## 📝 What I Learned
 
@@ -76,7 +73,6 @@ PyTorch 기반으로 주요 CNN 아키텍처들을 구현 및 실험함
 <br>
 <br>
 
----
 
 ## 🔗 References
 
