@@ -1,6 +1,6 @@
 # Deep Learning Study Repository
 
-딥러닝 Classification, Segmentation 모델을 직접 구현하고 학습해본 코드
+딥러닝 Classification, Segmentation 모델을 직접 구현하고 학습해본 코드  
 PyTorch 기반으로 주요 CNN 아키텍처들을 구현 및 실험함
 
 ---
