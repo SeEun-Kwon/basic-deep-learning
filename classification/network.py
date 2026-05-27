@@ -1,29 +1,29 @@
 import torch
 import torch.nn as nn
 
-# class BasicBlock(nn.Module):
-#     def __init__(self, c_in, c_out, downsample=False):
-#         super(BasicBlock, self).__init__()
-#         if downsample == True:
-#             self.conv1 = nn.Conv2d(c_in, c_in, kernel_size=3, stride=2, padding=1)
-#             self.shortcut = nn.Sequential(
-#                 nn.Conv2d(c_in, c_out, kernel_size=1, stride=2, padding=0),
-#                 nn.BatchNorm2d(c_out)
-#             )
-#         else:
-#             self.conv1 = nn.Conv2d(c_in, c_in, kernel_size=3, stride=1, padding=1)
-#             self.shortcut = nn.Identity()
-#         self.bn1 = nn.BatchNorm2d(c_in)
-#         self.conv2 = nn.Conv2d(c_in, c_out, kernel_size=3, stride=1, padding=1)
-#         self.bn2 = nn.BatchNorm2d(c_out)
-#         self.relu = nn.ReLU()
-#
-#     def forward(self, x):
-#         out = self.relu(self.bn1(self.conv1(x)))
-#         out = self.bn2(self.conv2(x))
-#         out = self.shortcut(x) + out
-#         out = self.relu(out)
-#         return out
+class BasicBlock(nn.Module):
+    def __init__(self, c_in, c_out, downsample=False):
+        super(BasicBlock, self).__init__()
+        if downsample == True:
+            self.conv1 = nn.Conv2d(c_in, c_in, kernel_size=3, stride=2, padding=1)
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(c_in, c_out, kernel_size=1, stride=2, padding=0),
+                nn.BatchNorm2d(c_out)
+            )
+        else:
+            self.conv1 = nn.Conv2d(c_in, c_in, kernel_size=3, stride=1, padding=1)
+            self.shortcut = nn.Identity()
+        self.bn1 = nn.BatchNorm2d(c_in)
+        self.conv2 = nn.Conv2d(c_in, c_out, kernel_size=3, stride=1, padding=1)
+        self.bn2 = nn.BatchNorm2d(c_out)
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        out = self.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(x))
+        out = self.shortcut(x) + out
+        out = self.relu(out)
+        return out
 
 class Bottleneck(nn.Module):
     def __init__(self, c_in, c_out, stride):
