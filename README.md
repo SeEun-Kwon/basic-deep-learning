@@ -14,6 +14,7 @@ PyTorch 기반으로 주요 CNN 아키텍처들을 구현 및 실험함
 <br>
 <br>
 ---
+
 ## 📂 Implement Details
 
 ### 1. Image Classification
@@ -61,6 +62,7 @@ PyTorch 기반으로 주요 CNN 아키텍처들을 구현 및 실험함
 <br>
 <br>
 ---
+
 ## 📝 What I Learned
 
 - CNN 아키텍처와 태스크별 특징과 차이점 이해
@@ -71,6 +73,7 @@ PyTorch 기반으로 주요 CNN 아키텍처들을 구현 및 실험함
 <br>
 <br>
 ---
+
 ## 🔗 References
 
 - VGGNet : https://arxiv.org/pdf/1409.1556
