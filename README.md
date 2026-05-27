@@ -13,7 +13,6 @@ PyTorch 기반으로 주요 CNN 아키텍처들을 구현 및 실험함
 - 데이터 로딩, 학습, 추론 파이프라인 구현
 <br>
 <br>
-<br>
 
 ## 📂 Implement Details
 
